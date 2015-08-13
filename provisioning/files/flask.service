@@ -1,0 +1,13 @@
+[Unit]
+Description=Gunicorn instance for flask application
+After=network.target
+
+[Service]
+User=root
+Group=nginx
+WorkingDirectory=/usr/share/nginx/
+Environment="PATH=/usr/share/nginx/venv/bin"
+ExecStart=/usr/share/nginx/venv/bin/gunicorn --workers 2 --bind unix:/var/run/flask.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target

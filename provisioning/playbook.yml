@@ -1,0 +1,51 @@
+---
+- hosts: all
+  sudo: yes
+  tasks:
+    - name: Disable unrequired services
+      service: name={{ item }} state=stopped enabled=no
+      with_items:
+        - kdump
+        - tuned
+        - irqbalance
+        - systemd-readahead-collect 
+        - systemd-readahead-replay
+    - name: Import the main RPM GPG key
+      rpm_key: key=/etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 state=present
+    - name: Copy nginx repository
+      copy: src=files/nginx.repo dest=/etc/yum.repos.d/
+    - name: Install prerequisite packages
+      yum: name={{ item }} state=latest update_cache=yes
+      with_items:
+        - gcc
+        - nginx
+        - epel-release
+        - python-virtualenv
+    - name: Import the EPEL RPM GPG key
+      rpm_key: key=/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 state=present
+    - name: Install MongoDB
+      yum: name=mongodb-server state=latest
+    - name: yum clean all
+      command: /usr/bin/yum -q clean all
+    - name: Start MongoDB and enable on boot
+      service: name=mongod state=started enabled=yes
+    - name: Copy application systemd unit file
+      copy: src=files/flask.service dest=/etc/systemd/system/
+    - name: Create application virtualenv
+      command: virtualenv /usr/share/nginx/venv creates=/usr/share/nginx/venv
+    - name: Copy application requirements
+      copy: src=files/requirements.txt dest=/usr/share/nginx/
+    - name: Install virtualenv requirements
+      pip: requirements=/usr/share/nginx/requirements.txt virtualenv=/usr/share/nginx/venv
+    - name: Copy the application
+      copy: src=files/{{ item }} dest=/usr/share/nginx/
+      with_items:
+        - dr.py
+        - dr_test.py
+        - wsgi.py
+    - name: Copy nginx virtual host
+      copy: src=files/default.conf dest=/etc/nginx/conf.d/
+    - name: Start the application and enable on boot
+      service: name=flask state=started enabled=yes
+    - name: Start nginx and enable on boot
+      service: name=nginx state=started enabled=yes
