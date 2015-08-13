@@ -20,22 +20,20 @@ def add_entry():
     all_entries = True
     entries = request.get_json(force=True)
     if type(entries) == list:
-        remove_list = []
-        for i, entry in enumerate(entries):
+        for entry in entries[:]:
             uid, name, date, md5checksum = (entry.get('uid'), entry.get('name'), entry.get('date'), entry.get('md5checksum'))
             checksum_string = '{"date": "%s", "uid": "%s", "name": "%s"}' % (date, uid, name)
             checksum = md5(checksum_string).hexdigest()
             if checksum != md5checksum:
-                remove_list.append(i)
+                entries.remove(entry)
                 all_entries = False
             else:
                 try:
                     entry['uid'] = int(uid)
                     entry['date'] = parser.parse(date if date else None)
                 except (ValueError, TypeError, AttributeError, KeyError):
-                    remove_list.append(i)
+                    entries.remove(entry)
                     all_entries = False
-        entries = [entry for i, entry in enumerate(entries) if i not in remove_list]
         if entries:
             users.insert_many(entries)
             if all_entries:
