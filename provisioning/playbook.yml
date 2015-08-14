@@ -13,7 +13,7 @@
     - name: Import the main RPM GPG key
       rpm_key: key=/etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 state=present
     - name: Copy nginx repository
-      copy: src=files/nginx.repo dest=/etc/yum.repos.d/
+      copy: src=templates/nginx.repo dest=/etc/yum.repos.d/
     - name: Install prerequisite packages
       yum: name={{ item }} state=latest
       with_items:
@@ -30,11 +30,11 @@
     - name: Start MongoDB and enable on boot
       service: name=mongod state=started enabled=yes
     - name: Copy application systemd unit file
-      copy: src=files/flask.service dest=/etc/systemd/system/
+      copy: src=templates/flask.service dest=/etc/systemd/system/
     - name: Create application virtualenv
       command: virtualenv /usr/share/nginx/venv creates=/usr/share/nginx/venv
     - name: Copy application requirements
-      copy: src=files/requirements.txt dest=/usr/share/nginx/
+      copy: src=templates/requirements.txt dest=/usr/share/nginx/
     - name: Install virtualenv requirements
       pip: requirements=/usr/share/nginx/requirements.txt virtualenv=/usr/share/nginx/venv
     - name: Copy the application
@@ -44,7 +44,7 @@
         - dr_test.py
         - wsgi.py
     - name: Copy nginx virtual host
-      copy: src=files/default.conf dest=/etc/nginx/conf.d/
+      copy: src=templates/default.conf dest=/etc/nginx/conf.d/
     - name: Start the application and enable on boot
       service: name=flask state=started enabled=yes
     - name: Start nginx and enable on boot
