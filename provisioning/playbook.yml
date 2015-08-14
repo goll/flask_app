@@ -15,7 +15,7 @@
     - name: Copy nginx repository
       copy: src=files/nginx.repo dest=/etc/yum.repos.d/
     - name: Install prerequisite packages
-      yum: name={{ item }} state=latest update_cache=yes
+      yum: name={{ item }} state=latest
       with_items:
         - gcc
         - nginx

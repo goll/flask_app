@@ -82,3 +82,14 @@ Then run these commands from the project directory (`flask_app/`):
     $ python2 provisioning/files/dr.py
 
 The application listens on *:8080.
+
+## Bundled files description
+* `Vagrantfile`: use a CentOS 7.1 base box with 1GiB of RAM and forward the guest port 8080 to host port 8080
+* `provisioning/playbook.yml`: ansible playbook used to provision the machine
+* `provisioning/files/default.conf`: nginx virtual host, contains a commented server_name so you can configure one if you want to
+* `provisioning/files/dr.py`: main Flask application
+* `provisioning/files/dr_test.py`: application tests
+* `provisioning/files/wsgi.py`: gunicorn instance entry point
+* `provisioning/files/flask.service`: gunicorn instance systemd unit file
+* `provisioning/files/requirements.txt`: virtualenv requirements
+* `provisioning/files/nginx.repo`: mainline nginx repository
